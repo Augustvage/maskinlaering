@@ -1,22 +1,46 @@
 import numpy as np
 from typing import Self
+import pandas as pd
 
 """
 This is a suggested template and you do not need to follow it. You can change any part of it to fit your needs.
 There are some helper functions that might be useful to implement first.
 At the end there is some test code that you can use to test your implementation on synthetic data by running this file.
 """
+data=pd.read_csv('coffee_data.csv')
+data=pd.read_csv('wine_dataset_small.csv')
+cat=data
+
+np_array=data.to_numpy()
+
+
+setet=set()
+columns =[np_array[:, i].tolist() for i in range (np_array.shape[1])]
+
 
 def count(y: np.ndarray) -> np.ndarray:
+    proportion=[]
+    # columns =[np_array[:, i].tolist() for i in range (np_array.shape[1])]
+
+    unique, counts = np.unique(y, return_counts=True)
+    
+    # Calculate proportions
+    proportions = counts / len(y)
+    
+    # Sort proportions by the labels
+    sorted_proportions = proportions[np.argsort(unique)]
+    
+    return sorted_proportions
+
     """
     Count unique values in y and return the proportions of each class sorted by label in ascending order.
     Example:
         count(np.array([3, 0, 0, 1, 1, 1, 2, 2, 2, 2])) -> np.array([0.2, 0.3, 0.4, 0.1])
     """
-    raise NotImplementedError(
-        "Implement this function"
-    )  # Remove this line when you implement the function
 
+
+print(count([1, 1, 2, 2, 4, 4, 3, 3, 3]))
+print(count(np.array([3, 0, 0, 1, 1, 1, 2, 2, 2, 2])))
 
 def gini_index(y: np.ndarray) -> float:
     """
@@ -25,19 +49,19 @@ def gini_index(y: np.ndarray) -> float:
     Example:
         gini_index(np.array([1, 1, 2, 2, 3, 3, 4, 4])) -> 0.75
     """
-    raise NotImplementedError(
-        "Implement this function"
-    )  # Remove this line when you implement the function
+    return (1-sum(count(y)**2))
 
+
+print(gini_index(np.array([3, 0, 0, 1, 1, 1, 2, 2, 2, 2])))
 
 def entropy(y: np.ndarray) -> float:
     """
     Return the entropy of a given NumPy array y.
     """
-    raise NotImplementedError(
-        "Implement this function"
-    )  # Remove this line when you implement the function
+    return -sum(count(y) * np.log2(count(y))) #sum(count(y)*np.log2(count(y)))
+      # Remove this line when you implement the function
 
+print(entropy(np.array([3, 0, 0, 1, 1, 1, 2, 2, 2, 2])))
 
 def split(x: np.ndarray, value: float) -> np.ndarray:
     """
@@ -45,9 +69,11 @@ def split(x: np.ndarray, value: float) -> np.ndarray:
     Example:
         split(np.array([1, 2, 3, 4, 5, 2]), 3) -> np.array([True, True, True, False, False, True])
     """
-    raise NotImplementedError(
-        "Implement this function"
-    )  # Remove this line when you implement the function
+    arr=x <= value
+    return arr
+
+print(split(np.array([1, 2, 3, 4, 5, 2]), 3))
+        
 
 
 def most_common(y: np.ndarray) -> int:
@@ -56,9 +82,18 @@ def most_common(y: np.ndarray) -> int:
     Example:
         most_common(np.array([1, 2, 2, 3, 3, 3, 4, 4, 4, 4])) -> 4
     """
-    raise NotImplementedError(
-        "Implement this function"
-    )  # Remove this line when you implement the function
+    unique, counts = np.unique(y, return_counts=True)
+
+# Get the index of the most frequent element
+    most_common_index = np.argmax(counts)
+
+    # Get the most frequent element
+    most_common_element = unique[most_common_index]
+
+    return most_common_element
+    
+
+print(most_common(np.array([1, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4])))
 
 
 class Node:
@@ -119,26 +154,26 @@ class DecisionTree:
         )  # Remove this line when you implement the function
 
 
-if __name__ == "__main__":
-    # Test the DecisionTree class on a synthetic dataset
-    from sklearn.datasets import make_classification
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score
+# if __name__ == "__main__":
+#     # Test the DecisionTree class on a synthetic dataset
+#     from sklearn.datasets import make_classification
+#     from sklearn.model_selection import train_test_split
+#     from sklearn.metrics import accuracy_score
 
-    seed = 0
+#     seed = 0
 
-    np.random.seed(seed)
+#     np.random.seed(seed)
 
-    X, y = make_classification(
-        n_samples=100, n_features=10, random_state=seed, n_classes=2
-    )
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.3, random_state=seed, shuffle=True
-    )
+#     X, y = make_classification(
+#         n_samples=100, n_features=10, random_state=seed, n_classes=2
+#     )
+#     X_train, X_val, y_train, y_val = train_test_split(
+#         X, y, test_size=0.3, random_state=seed, shuffle=True
+#     )
 
-    # Expect the training accuracy to be 1.0 when max_depth=None
-    rf = DecisionTree(max_depth=None, criterion="entropy")
-    rf.fit(X_train, y_train)
+#     # Expect the training accuracy to be 1.0 when max_depth=None
+#     rf = DecisionTree(max_depth=None, criterion="entropy")
+#     rf.fit(X_train, y_train)
 
-    print(f"Training accuracy: {accuracy_score(y_train, rf.predict(X_train))}")
-    print(f"Validation accuracy: {accuracy_score(y_val, rf.predict(X_val))}")
+#     print(f"Training accuracy: {accuracy_score(y_train, rf.predict(X_train))}")
+#     print(f"Validation accuracy: {accuracy_score(y_val, rf.predict(X_val))}")
