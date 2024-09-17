@@ -1,13 +1,14 @@
 import numpy as np
 from typing import Self
 import pandas as pd
+import sys
 
 """
 This is a suggested template and you do not need to follow it. You can change any part of it to fit your needs.
 There are some helper functions that might be useful to implement first.
 At the end there is some test code that you can use to test your implementation on synthetic data by running this file.
 """
-data=pd.read_csv('coffee_data2.csv')
+data=pd.read_csv('coffee_data.csv')
 # data=pd.read_csv('wine_dataset_small.csv')
 # cat=data
 
@@ -124,7 +125,7 @@ class Node:
         # Return True iff the node is a leaf node
         return self.value is not None
 
-
+#minimum sample split
 class DecisionTree:
     def __init__(self, max_depth: int | None = None, criterion: str = "entropy") -> None:
         self.root = None
@@ -273,15 +274,18 @@ if __name__ == "__main__":
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import accuracy_score
 
-    # seed = 0
+    seed = 0
 
-    #np.random.seed(seed)
+    seed=np.random.seed(seed)
+
 
     # X, y = make_classification(
     #     n_samples=100, n_features=10, random_state=seed, n_classes=2
     #)
+    # for i in range (20, 50):
+    #     i=i/100
     X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.3, random_state=42, shuffle=True
+        X, y, test_size=0.3, random_state=seed, shuffle=True
     )
 
     # Expect the training accuracy to be 1.0 when max_depth=None
@@ -290,6 +294,7 @@ if __name__ == "__main__":
 
     print(f"Training accuracy: {accuracy_score(y_train, rf.predict(X_train))}")
     print(f"Validation accuracy: {accuracy_score(y_val, rf.predict(X_val))}")
+        # print(f'Split size is: {i}')
 
     
     
