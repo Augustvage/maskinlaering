@@ -1,7 +1,16 @@
 import numpy as np
-from decision_tree import Node, DecisionTree
+from decision_tree_for_forest import Node, DecisionTree
 from sklearn.utils import resample
 import math
+import pandas as pd
+
+data=pd.read_csv('coffee_data.csv')
+# data=pd.read_csv('wine_dataset_small.csv')
+
+np_array=data.to_numpy()
+
+X, y = np_array[:, :-1], np_array[:, -1]
+
 
 class RandomForest:
     def __init__(
@@ -23,52 +32,41 @@ class RandomForest:
             X_sample, y_sample = resample(X, y, n_samples=len(X))  # Bootstrap sampling
             tree.fit(X_sample, y_sample)
 
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         predictions = np.array([tree.predict(X) for tree in self.trees])
+        
+        # Ensure predictions are of integer type
+        predictions = predictions.astype(int)
+        
         # Take majority vote
         majority_vote = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=predictions)
         return majority_vote
 
 
+
+
 if __name__ == "__main__":
-    # Test the RandomForest class on a synthetic dataset
-    from sklearn.datasets import make_classification
-    from sklearn.model_selection import train_test_split
     from sklearn.metrics import accuracy_score
+    from sklearn.model_selection import train_test_split
 
     seed = 0
 
     np.random.seed(seed)
 
-    X, y = make_classification(
-        n_samples=100, n_features=10, random_state=seed, n_classes=2
-    )
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=0.3, random_state=seed, shuffle=True
     )
-temp=0
-temp2=0
-dicten={'high_total': None, 'best': None}
-for i in range (1, 40):
-    for e in range (1, 10):
-        rf = RandomForest(
-            n_estimators=i, max_depth=e, criterion="entropy", max_features="sqrt"
-        )
-        rf.fit(X_train, y_train)
+    rf = RandomForest(
+        n_estimators=15, max_depth=7, criterion="gini", max_features="sqrt"
+    )
+    rf.fit(X_train, y_train)
 
-        # print(f"Training accuracy: {accuracy_score(y_train, rf.predict(X_train))}")
-        # print(f"Validation accuracy: {accuracy_score(y_val, rf.predict(X_val))}")
-        # print(i, e)
+    train_accuracy = accuracy_score(y_train, rf.predict(X_train))
+    val_accuracy = accuracy_score(y_val, rf.predict(X_val))
 
+    print(f"Training accuracy: {train_accuracy}")
+    print(f"Validation accuracy: {val_accuracy}")
 
-        t=accuracy_score(y_train, rf.predict(X_train))
-        v=accuracy_score(y_val, rf.predict(X_val))
-        if t+v>temp:
-            temp=t+v
-            dicten['high_total']=[t, v, i, e]
-        if t+v-abs(t-v)>temp2:
-            temp2=t+v-abs(t-v)>temp2
-            dicten['best']=[t, v, i, e]
-        print(dicten)
 
         

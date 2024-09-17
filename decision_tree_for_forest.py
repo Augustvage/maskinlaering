@@ -3,11 +3,6 @@ from typing import Self
 import pandas as pd
 import sys
 
-"""
-This is a suggested template and you do not need to follow it. You can change any part of it to fit your needs.
-There are some helper functions that might be useful to implement first.
-At the end there is some test code that you can use to test your implementation on synthetic data by running this file.
-"""
 data=pd.read_csv('coffee_data.csv')
 # data=pd.read_csv('wine_dataset_small.csv')
 # cat=data
@@ -16,14 +11,8 @@ np_array=data.to_numpy()
 
 X, y = np_array[:, :-1], np_array[:, -1]
 
-
-# setet=set()
-# columns =[np_array[:, i].tolist() for i in range (np_array.shape[1])]
-
-
 def count(y: np.ndarray) -> np.ndarray:
     proportion=[]
-    # columns =[np_array[:, i].tolist() for i in range (np_array.shape[1])]
 
     unique, counts = np.unique(y, return_counts=True)
     
@@ -42,9 +31,6 @@ def count(y: np.ndarray) -> np.ndarray:
     """
 
 
-# print(count([1, 1, 2, 2, 4, 4, 3, 3, 3]))
-# print(count(np.array([3, 0, 0, 1, 1, 1, 2, 2, 2, 2])))
-
 def gini_index(y: np.ndarray) -> float:
     """
     Return the Gini Index of a given NumPy array y.
@@ -55,16 +41,12 @@ def gini_index(y: np.ndarray) -> float:
     return (1-sum(count(y)**2))
 
 
-# print(gini_index(np.array([3, 0, 0, 1, 1, 1, 2, 2, 2, 2])))
-
 def entropy(y: np.ndarray) -> float:
     """
     Return the entropy of a given NumPy array y.
     """
     return -sum(count(y) * np.log2(count(y))) 
       # Remove this line when you implement the function
-
-# print(entropy(np.array([3, 0, 0, 1, 1, 1, 2, 2, 2, 2])))
 
 def split(x: np.ndarray, value: float) -> np.ndarray:
     """
@@ -75,7 +57,6 @@ def split(x: np.ndarray, value: float) -> np.ndarray:
     arr=x <= value
     return arr
 
-#print(split(np.array([1, 2, 3, 4, 5, 2]), 3))
         
 
 
@@ -94,9 +75,14 @@ def most_common(y: np.ndarray) -> int:
     most_common_element = unique[most_common_index]
 
     return most_common_element
-    
 
-# print(most_common(np.array([1, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4])))
+def sqrt(X: np.ndarray) -> int:
+    n_features= X.shape[1]
+    return int(np.sqrt(n_features))
+
+def log2(X: np.ndarray)->int:
+    n_features=X.shape[1]
+    return int(np.log2(n_features))
 
 
 class Node:
@@ -127,20 +113,24 @@ class Node:
 
 #minimum sample split
 class DecisionTree:
-    def __init__(self, max_depth: int | None = None, criterion: str = "entropy") -> None:
+    def __init__(self, max_depth: int | None = None, criterion: str = "entropy", max_features=None) -> None:
         self.root = None
         self.criterion = criterion
         self.max_depth = max_depth
+        self.max_features=max_features
 
-    def fit(
-        self,
-        X: np.ndarray,
-        y: np.ndarray,
-    ):
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        # If max_features is 'sqrt', compute the sqrt of the number of features
+        if self.max_features == 'sqrt':
+            self.max_features = sqrt(X)
+        # If max_features is 'log2', compute log2 of the number of features
+        elif self.max_features == 'log2':
+            self.max_features = log2(X)
+        # If max_features is None, consider all features
+        elif self.max_features is None:
+            self.max_features = X.shape[1]
+
         self.root = self.build_tree(X, y)
-        """
-        This functions learns a decision tree given (continuous) features X and (integer) labels y.
-        """
         
 
     def predict(self, X: np.ndarray) -> np.ndarray:
@@ -172,13 +162,17 @@ class DecisionTree:
 
     
     
-    def find_best_split(self, X, Y):
+    def find_best_split(self, X: np.ndarray, y: np.ndarray):
         best_split = {}
         best_gain = -1
         n_samples, n_features = X.shape
 
-        # Loop through each feature
-        for feature_idx in range(n_features):
+        # Randomly select a subset of features to consider for this split
+        # This should be a list/array of indices
+        features_indices = np.random.choice(n_features, self.max_features, replace=False)
+
+        # Loop through each feature in the selected subset
+        for feature_idx in features_indices:
             feature_values = X[:, feature_idx]
             unique_values = np.unique(feature_values)
 
@@ -266,34 +260,4 @@ class DecisionTree:
             # Print the right subtree
             print(f"{'|   ' * depth}--> Right:")
             self.print_tree(node.right, depth + 1)
-    
-
-if __name__ == "__main__":
-    # Test the DecisionTree class on a synthetic dataset
-    from sklearn.datasets import make_classification
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import accuracy_score
-
-    seed = 0
-
-    seed=np.random.seed(seed)
-
-
-    # X, y = make_classification(
-    #     n_samples=100, n_features=10, random_state=seed, n_classes=2
-    #)
-    # for i in range (20, 50):
-    #     i=i/100
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.3, random_state=seed, shuffle=True
-    )
-
-    # Expect the training accuracy to be 1.0 when max_depth=None
-    rf = DecisionTree(max_depth=None, criterion="entropy")
-    rf.fit(X_train, y_train)
-
-    print(f"Training accuracy: {accuracy_score(y_train, rf.predict(X_train))}")
-    print(f"Validation accuracy: {accuracy_score(y_val, rf.predict(X_val))}")
-        # print(f'Split size is: {i}')
-
     
