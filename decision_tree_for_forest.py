@@ -5,7 +5,6 @@ import sys
 
 data=pd.read_csv('coffee_data.csv')
 # data=pd.read_csv('wine_dataset_small.csv')
-# cat=data
 
 np_array=data.to_numpy()
 
@@ -261,3 +260,56 @@ class DecisionTree:
             print(f"{'|   ' * depth}--> Right:")
             self.print_tree(node.right, depth + 1)
     
+
+from sklearn.tree import DecisionTreeClassifier
+import itertools
+from sklearn.model_selection import StratifiedKFold
+
+# Assume X and y are already defined
+k = 5
+skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=0)
+
+decision_tree_params = {
+    'max_depth': [None, 3, 5, 7, 10, 12, 15, 17, 20],
+    'criterion': ['gini', 'entropy'],
+    'max_features': [None, 'sqrt', 'log2']
+}
+
+best_accuracy = 0
+best_params = None
+
+for max_depth, criterion, max_features in itertools.product(
+    decision_tree_params['max_depth'],
+    decision_tree_params['criterion'],
+    decision_tree_params['max_features']
+):
+    accuracies = []
+    for train_index, val_index in skf.split(X, y):
+        X_train_fold, X_val_fold = X[train_index], X[val_index]
+        y_train_fold, y_val_fold = y[train_index], y[val_index]
+        
+        # Initialize and train the model
+        dt = DecisionTree(
+            max_depth=max_depth,
+            criterion=criterion,
+            max_features=max_features
+        )
+        dt.fit(X_train_fold, y_train_fold)
+        
+        # Evaluate on validation fold
+        y_pred = dt.predict(X_val_fold)
+        accuracy = np.mean(y_pred == y_val_fold)
+        accuracies.append(accuracy)
+    
+    avg_accuracy = np.mean(accuracies)
+    
+    if avg_accuracy > best_accuracy:
+        best_accuracy = avg_accuracy
+        best_params = {
+            'max_depth': max_depth,
+            'criterion': criterion,
+            'max_features': max_features
+        }
+
+print("Best Decision Tree parameters:", best_params)
+print("Cross-Validation Accuracy:", best_accuracy)

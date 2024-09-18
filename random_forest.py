@@ -24,7 +24,7 @@ class RandomForest:
         self.max_depth = max_depth
         self.criterion = criterion
         self.max_features = max_features
-        self.trees = [DecisionTree(max_depth=self.max_depth, criterion=self.criterion) for _ in range(self.n_estimators)]
+        self.trees = [DecisionTree(max_depth=self.max_depth, criterion=self.criterion, max_features=self.max_features) for _ in range(self.n_estimators)]
    
    
     def fit(self, X: np.ndarray, y: np.ndarray):
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         X, y, test_size=0.3, random_state=seed, shuffle=True
     )
     rf = RandomForest(
-        n_estimators=15, max_depth=7, criterion="gini", max_features="sqrt"
+        n_estimators=15, max_depth=7, criterion="gini", max_features="log2"
     )
     rf.fit(X_train, y_train)
 
