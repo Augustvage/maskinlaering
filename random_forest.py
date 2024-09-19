@@ -46,27 +46,27 @@ class RandomForest:
 
 
 
-if __name__ == "__main__":
-    from sklearn.metrics import accuracy_score
-    from sklearn.model_selection import train_test_split
+# if __name__ == "__main__":
+#     from sklearn.metrics import accuracy_score
+#     from sklearn.model_selection import train_test_split
 
-    seed = 0
+#     seed = 0
 
-    np.random.seed(seed)
+#     np.random.seed(seed)
 
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.3, random_state=seed, shuffle=True
-    )
-    rf = RandomForest(
-        n_estimators=15, max_depth=7, criterion="gini", max_features="log2"
-    )
-    rf.fit(X_train, y_train)
+#     X_train, X_val, y_train, y_val = train_test_split(
+#         X, y, test_size=0.3, random_state=seed, shuffle=True
+#     )
+#     rf = RandomForest(
+#         n_estimators=15, max_depth=7, criterion="gini", max_features="log2"
+#     )
+#     rf.fit(X_train, y_train)
 
-    train_accuracy = accuracy_score(y_train, rf.predict(X_train))
-    val_accuracy = accuracy_score(y_val, rf.predict(X_val))
+#     train_accuracy = accuracy_score(y_train, rf.predict(X_train))
+#     val_accuracy = accuracy_score(y_val, rf.predict(X_val))
 
-    print(f"Training accuracy: {train_accuracy}")
-    print(f"Validation accuracy: {val_accuracy}")
+#     print(f"Training accuracy: {train_accuracy}")
+#     print(f"Validation accuracy: {val_accuracy}")
 
 
         
