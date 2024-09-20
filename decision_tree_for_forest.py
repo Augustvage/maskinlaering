@@ -47,6 +47,7 @@ def entropy(y: np.ndarray) -> float:
     return -sum(count(y) * np.log2(count(y))) 
       # Remove this line when you implement the function
 
+#Not in use
 def split(x: np.ndarray, value: float) -> np.ndarray:
     """
     Return a boolean mask for the elements of x satisfying x <= value.
@@ -86,10 +87,6 @@ def log2(X: np.ndarray)->int:
 def minus_one(X: np.ndarray) -> int:
     n_features=X.shape[1]
     return int(n_features-1)
-
-def two(X: np.ndarray) -> int:
-    n_features=X.shape[1]
-    pass
 
 
 class Node:
@@ -136,9 +133,7 @@ class DecisionTree:
         # If max_features is None, consider all features
         elif self.max_features is None:
             self.max_features = X.shape[1]
-        # If max_features is two, take two
-        elif self.max_features == 'two':
-            self.max_features = 2
+        #If max_features is 'minus_one'
         elif self.max_features == 'minus_one':
             self.max_features = minus_one(X)
 
