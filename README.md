@@ -1,1 +1,2 @@
 # maskinlaering
+We have one file for the decision tree as well as one for the forest. These classes do we import to model testing and model validation. Model validation tunes and validate the models while model testing trains the model and try it with testing data. 
