@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score
 
 def plot(data):
     #Finds features
@@ -19,5 +20,28 @@ def plot(data):
         plt.ylabel('Density')
         plt.legend()
         plt.show()
+
+def test(model_class, X_train, X_test, y_train, y_test, best_params):
+    try:
+        model = model_class(
+            n_estimators=best_params["n_estimators"],
+            max_depth=best_params['max_depth'],
+            criterion=best_params['criterion'],
+            max_features=best_params['max_features']
+        )
+    except Exception:
+        model=model_class(
+            max_depth=best_params['max_depth'],
+            criterion=best_params['criterion']
+        )
+
+        model.fit(X_train, y_train)
+        train_accuracy=accuracy_score(y_train, model.predict(X_train))
+        test_accuracy=accuracy_score(y_test, model.predict(X_test))
+        print(f"Training accuracy: {train_accuracy}")
+        print(f"Test accuracy: {test_accuracy}")
+
+    
+    
 
 

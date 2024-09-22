@@ -142,7 +142,6 @@ class DecisionTree:
         left_idxs, right_idxs = best_split['left_idxs'], best_split['right_idxs']
         left_child = self.build_tree(X[left_idxs], y[left_idxs], depth + 1)
         right_child = self.build_tree(X[right_idxs], y[right_idxs], depth + 1)
-        
         # Return a decision node
         return Node(feature=best_split['feature'], threshold=best_split['threshold'], 
                     left=left_child, right=right_child)
