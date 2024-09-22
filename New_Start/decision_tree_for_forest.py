@@ -10,80 +10,60 @@ np_array=data.to_numpy()
 
 X, y = np_array[:, :-1], np_array[:, -1]
 
+#Find unique 'keys' and how many there are of them. Then it devides on the length to find the porportion
 def count(y: np.ndarray) -> np.ndarray:
     proportion=[]
 
     unique, counts = np.unique(y, return_counts=True)
     
-    # Calculate proportions
     proportions = counts / len(y)
-    
-    # Sort proportions by the labels
+
     sorted_proportions = proportions[np.argsort(unique)]
     
     return sorted_proportions
 
-    """
-    Count unique values in y and return the proportions of each class sorted by label in ascending order.
-    Example:
-        count(np.array([3, 0, 0, 1, 1, 1, 2, 2, 2, 2])) -> np.array([0.2, 0.3, 0.4, 0.1])
-    """
 
 
+#Calculate gini index with the given formula
 def gini_index(y: np.ndarray) -> float:
-    """
-    Return the Gini Index of a given NumPy array y.
-    The forumla for the Gini Index is 1 - sum(probs^2), where probs are the proportions of each class in y.
-    Example:
-        gini_index(np.array([1, 1, 2, 2, 3, 3, 4, 4])) -> 0.75
-    """
     return (1-sum(count(y)**2))
 
-
+#Calculates the entropy 
 def entropy(y: np.ndarray) -> float:
-    """
-    Return the entropy of a given NumPy array y.
-    """
     return -sum(count(y) * np.log2(count(y))) 
       # Remove this line when you implement the function
 
-#Not in use
+#Not in use, but takes and array and gives an array with boolean values depending if they under or over 'value'.
 def split(x: np.ndarray, value: float) -> np.ndarray:
-    """
-    Return a boolean mask for the elements of x satisfying x <= value.
-    Example:
-        split(np.array([1, 2, 3, 4, 5, 2]), 3) -> np.array([True, True, True, False, False, True])
-    """
     arr=x <= value
     return arr
 
         
 
-
+#Finds the most common by finding the max of the counts
+#If there are two numbers with equal apperances it takes the first one in the 'counts' list. 
 def most_common(y: np.ndarray) -> int:
-    """
-    Return the most common element in y.
-    Example:
-        most_common(np.array([1, 2, 2, 3, 3, 3, 4, 4, 4, 4])) -> 4
-    """
     unique, counts = np.unique(y, return_counts=True)
 
-# Get the index of the most frequent element
     most_common_index = np.argmax(counts)
 
-    # Get the most frequent element
     most_common_element = unique[most_common_index]
 
     return most_common_element
 
+#Finds the integer value of the squareroot of the length of an array. 
 def sqrt(X: np.ndarray) -> int:
     n_features= X.shape[1]
     return int(np.sqrt(n_features))
 
+#Finds the integer value of the logarithm of the length of an array. 
 def log2(X: np.ndarray)->int:
     n_features=X.shape[1]
     return int(np.log2(n_features))
 
+#Takes the length of an array and subtracts 1.
+#We made it to test some different max_features but removed it because of bad results. 
+#Possibly because the number of different combinations decreases. 
 def minus_one(X: np.ndarray) -> int:
     n_features=X.shape[1]
     return int(n_features-1)
@@ -115,7 +95,7 @@ class Node:
         # Return True iff the node is a leaf node
         return self.value is not None
 
-#minimum sample split
+#The decision tree implementation 
 class DecisionTree:
     def __init__(self, max_depth: int | None = None, criterion: str = "entropy", max_features=None) -> None:
         self.root = None
@@ -123,31 +103,30 @@ class DecisionTree:
         self.max_depth = max_depth
         self.max_features=max_features
 
+    #Sets the max_features depending on the input and initiate the tree building. 
     def fit(self, X: np.ndarray, y: np.ndarray):
-        # If max_features is 'sqrt', compute the sqrt of the number of features
         if self.max_features == 'sqrt':
             self.max_features = sqrt(X)
-        # If max_features is 'log2', compute log2 of the number of features
         elif self.max_features == 'log2':
             self.max_features = log2(X)
-        # If max_features is None, consider all features
         elif self.max_features is None:
             self.max_features = X.shape[1]
-        #If max_features is 'minus_one'
         elif self.max_features == 'minus_one':
             self.max_features = minus_one(X)
 
-
         self.root = self.build_tree(X, y)
         
-
+    #Initiate the traverse tree so it can travel through each node.
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Given a NumPy array X of features, return a NumPy array of predicted integer labels.
         """
-        return np.array([self._traverse_tree(x, self.root) for x in X])
+        return np.array([self.traverse_tree(x, self.root) for x in X])
 
-
+    #This is the part where we start implementing the ID3 algorithm by recursivly building a tree
+    #with two base cases which stops the recurssion. (The base cases are stated in the task)
+    #If it has not yet reached the first base case it finds the best split with the best_split function.
+    #And if it has not reached the second it add the two new leafes on the old one.
     def build_tree(self, X, y, depth=0):
         if len(np.unique(y)) == 1 or depth == self.max_depth:
         # Create a leaf node with the most common class
@@ -169,7 +148,9 @@ class DecisionTree:
                     left=left_child, right=right_child)
 
     
-    
+    #This is the function that the tree builder use decide how to split the array into different nodes. 
+    #It uses the calculate gain function to decide the gain of each possible split and chooses the best one. 
+    #The gain meassure is decided by the criterion input, and the tree might change depending on what meassure you choose. 
     def find_best_split(self, X: np.ndarray, y: np.ndarray):
         best_split = {}
         best_gain = -1
@@ -194,7 +175,7 @@ class DecisionTree:
                     continue
 
                 # Calculate the gain
-                gain = self._calculate_gain(y, left_idxs, right_idxs)
+                gain = self.calculate_gain(y, left_idxs, right_idxs)
                 
                 if gain > best_gain:
                     best_gain = gain
@@ -208,17 +189,21 @@ class DecisionTree:
         return best_split if best_gain > 0 else None
 
 
-    
-    def _traverse_tree(self, x: np.ndarray, node: Node):
+    #The traverse tree function we used earlier. 
+    #Just a function for going through each node in the tree. 
+
+    def traverse_tree(self, x: np.ndarray, node: Node):
         if node.is_leaf():
             return node.value
 
         if x[node.feature] <= node.threshold:
-            return self._traverse_tree(x, node.left)
+            return self.traverse_tree(x, node.left)
         else:
-            return self._traverse_tree(x, node.right)
-        
-    def _calculate_gain(self, y: np.ndarray, left_idxs: np.ndarray, right_idxs: np.ndarray) -> float:
+            return self.traverse_tree(x, node.right)
+
+     #The calculate gain function. 
+     # Calculates gain of a split. You can explain is as the "messiness" of the subsets.    
+    def calculate_gain(self, y: np.ndarray, left_idxs: np.ndarray, right_idxs: np.ndarray) -> float:
         # Get the samples for the left and right splits
         y_left = y[left_idxs]
         y_right = y[right_idxs]
@@ -247,6 +232,8 @@ class DecisionTree:
         
         return gain
 
+    #A print tree function. It's made to be able to see the tree visually.
+    #It is not necesarry for the code to work. 
     def print_tree(self, node=None, depth=0):
         """
         Recursively print the decision tree structure.

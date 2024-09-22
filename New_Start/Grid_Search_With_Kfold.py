@@ -1,16 +1,17 @@
-from decision_tree_for_forest import DecisionTree as DT2
-from random_forest import RandomForest
 from sklearn.model_selection import KFold, GridSearchCV
 import numpy as np 
-import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
 import itertools
-from sklearn.ensemble import RandomForestClassifier as RFC
-from sklearn.tree import DecisionTreeClassifier as DTC
 
+
+#Grid Search with Kfold-validation.
+#This does tune the hyperparamters by "setting up a grid" and test each "cell".
+#Each cell has a unique combination. By testing all the accurisies of the different combinations
+#Will you find the best one. Because we have Kfold will it be tested by different parts of the dataset
+#meaning that we reduce variance because we will get the output that is on average best. 
 def grid_search(model_class, X, y, n_estimators=None, max_depth=None, criterion=None, max_features=None):
-    decision_tree=False
+    decision_tree=False   #Just a variable to destinct between the models since the decision tree don't have n_estimators as a hyperparameter. 
     seed = 0
     np.random.seed(seed)
     k = 5
@@ -24,6 +25,7 @@ def grid_search(model_class, X, y, n_estimators=None, max_depth=None, criterion=
     best_params = None
 
     # Get the product of parameter combinations
+    
     param_combinations = itertools.product(
         params['n_estimators'] or [None], 
         params['max_depth'] or [None], 
@@ -61,7 +63,7 @@ def grid_search(model_class, X, y, n_estimators=None, max_depth=None, criterion=
 
             # Evaluate on validation fold
             y_pred = model.predict(X_val_fold)
-            accuracy = np.mean(y_pred == y_val_fold)
+            accuracy = accuracy_score(y_val_fold, y_pred)
             accuracies.append(accuracy)
 
         # Average accuracy for this combination
@@ -80,4 +82,5 @@ def grid_search(model_class, X, y, n_estimators=None, max_depth=None, criterion=
         del best_params['n_estimators']
 
     return best_params, best_accuracy
+
 

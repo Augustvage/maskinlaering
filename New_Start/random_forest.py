@@ -1,17 +1,9 @@
 import numpy as np
-from decision_tree_for_forest import Node, DecisionTree
+from decision_tree_for_forest import DecisionTree
 from sklearn.utils import resample
-import math
-import pandas as pd
 
-data=pd.read_csv('coffee_data.csv')
-# data=pd.read_csv('wine_dataset_small.csv')
-
-np_array=data.to_numpy()
-
-X, y = np_array[:, :-1], np_array[:, -1]
-
-
+#The random forest implementation.
+#Creates multiple decision tree to get a better results in the machine learning.
 class RandomForest:
     def __init__(
         self,
@@ -26,13 +18,16 @@ class RandomForest:
         self.max_features = max_features
         self.trees = [DecisionTree(max_depth=self.max_depth, criterion=self.criterion, max_features=self.max_features) for _ in range(self.n_estimators)]
    
-   
+    #Iterating through the trees in the forest training them one by one. 
+    #It bootstrap samples (selects random X and y to create new datasets).
+    #This makes each tree trained on different data which reduce variance and overfitting. 
     def fit(self, X: np.ndarray, y: np.ndarray):
         for tree in self.trees:
             X_sample, y_sample = resample(X, y, n_samples=len(X))  # Bootstrap sampling
             tree.fit(X_sample, y_sample)
 
-
+    #Does the same as the predict in the decision tree, but on all the trees in the list (forest).
+    #Then it finds the most common nodes for the trees and returns it. 
     def predict(self, X: np.ndarray) -> np.ndarray:
         predictions = np.array([tree.predict(X) for tree in self.trees])
         
