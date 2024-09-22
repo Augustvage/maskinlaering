@@ -80,7 +80,6 @@ def grid_search(model_class, X, y, n_estimators=None, max_depth=None, criterion=
             }
     if decision_tree is True:
         del best_params['n_estimators']
-        del best_params['max_features']
 
     return best_params, best_accuracy
 

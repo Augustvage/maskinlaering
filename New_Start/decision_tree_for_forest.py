@@ -3,13 +3,6 @@ from typing import Self
 import pandas as pd
 import sys
 
-data=pd.read_csv('coffee_data.csv')
-# data=pd.read_csv('wine_dataset_small.csv')
-
-np_array=data.to_numpy()
-
-X, y = np_array[:, :-1], np_array[:, -1]
-
 #Find unique 'keys' and how many there are of them. Then it devides on the length to find the porportion
 def count(y: np.ndarray) -> np.ndarray:
     proportion=[]
